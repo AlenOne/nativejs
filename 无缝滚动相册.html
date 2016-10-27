@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>test</title>
+<style>
+	*{
+		margin:0;
+		padding:0;
+	}
+	img{
+		width:180px;
+		height:200px;
+		
+	}
+	#mydiv{
+		width:1080px;
+		height:200px;
+		background:red;
+		margin:100px auto;
+		position:relative;
+		overflow:hidden;
+	}
+	#mydiv ul{
+		position:absolute;
+		left:0;
+		top:0;
+	}
+	#mydiv ul li{
+		width:180px;
+		height:200px;
+		float:left; 
+		list-style:none;
+	}
+	a{
+		width:104px;
+		height:105px;
+		position:absolute;
+	}
+	#left{
+		top:130px;
+		left:-4px;
+		background:url(img/btn1.jpg) no-repeat;
+		
+	}
+	#right{
+		top:130px;
+		left:1180px;
+		background:url(img/btn1.jpg) no-repeat;
+		background-position:-104px top;
+	}
+	#left:hover{
+		background-position:0px -124px;
+	}
+	#right:hover{
+		background-position:-104px -124px;
+	}
+</style>
+<script src="tool.js"></script>
+<script type="text/javascript">
+	window.onload=function(){
+		var div = document.getElementById("mydiv");
+		var ul = div.getElementsByTagName("ul")[0];
+		var lis = ul.getElementsByTagName("li");
+		var speed = -2;
+		ul.innerHTML=ul.innerHTML+ul.innerHTML;
+		
+		
+		ul.style.width = lis[0].offsetWidth*lis.length+"px";
+		
+		function move(){
+			if(ul.offsetLeft< -ul.offsetWidth/2){
+				ul.style.left = 0+"px";
+			}
+			if(ul.offsetLeft>0){
+				ul.style.left=-ul.offsetWidth/2+"px";
+			}
+				ul.style.left=ul.offsetLeft+speed+"px";
+			
+			
+		}
+		var timer = setInterval(move,30);
+		
+		div.onmouseover=function(){
+			clearInterval(timer);
+		}
+		div.onmouseout=function(){
+			timer = setInterval(move,30);
+		}
+		var left = document.getElementById("left");
+		var right = document.getElementById("right");
+		left.onclick=function(){
+			speed = -2;
+		}
+		right.onclick=function(){
+			speed = 2;
+		}
+		
+	}
+</script>
+</head>
+<body>
+	<a href="javascript:;" id="left"></a>
+	<a href="javascript:;" id="right"></a>
+	
+	<div id="mydiv">
+	
+		<ul>
+			<li><img src="img/01.jpg"/></li>
+			<li><img src="img/02.jpg"/></li>
+			<li><img src="img/03.jpg"/></li>
+			<li><img src="img/04.jpg"/></li>
+			<li><img src="img/05.jpg"/></li>
+			<li><img src="img/06.jpg"/></li>
+			
+		</ul>
+	</div>
+</body>
+</html>
