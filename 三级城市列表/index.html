@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title></title>
+		<style type="text/css">
+			body{
+				font-size: 30px;
+				font-weight:bold ;
+			}
+			ul li{
+				list-style: none;
+			}
+		</style>
+		<script type="text/javascript">
+			function show(data){
+				var list = document.getElementById("list");
+				list.innerHTML='';
+				if(data.success === '1'){
+					var result = data.result;
+					
+					
+					
+					for(var i = 0; i < result.length;i++){
+						
+						var li = document.createElement('li');
+						var img1 = document.createElement('img');
+						var img2 = document.createElement('img');
+						li.innerHTML = result[i].days + ' '+result[i].week+' '+result[i].temperature+' '+result[i].weather+' ';
+						img1.src=result[i].weather_icon;
+						img2.src=result[i].weather_icon1;
+						li.appendChild(img1);
+						li.appendChild(img2);
+						list.appendChild(li);
+						
+					}
+					
+				}else{
+					list.innerHTML='对不起,'+data.msg;
+				}
+				
+			}
+			
+			
+			function change(data){
+				if(data.success === '1'){
+					var res = data.result;
+					var temp = res.ret;
+					var arr = temp.split(' ');
+					var index = arr.length ;
+					arr.length =index -1;
+					var  str = '';
+					for(var i = 0; i < arr.length-1; i++){
+						str +=arr[i];
+					}
+					//alert(arr);
+					//alert(str);
+					//return str;
+					//你能显示区的天气
+					
+					//创建scripte标签获取天气数据
+					var scripte = document.createElement('script');
+					
+					scripte.src="http://api.k780.com:88/?app=weather.future&"+
+					"weaid="+str+
+					"&&appkey=10003&sign=b59bc3ef6191eb9f747dd4e83c99f2a4&format=json"+
+					"&jsoncallback=show";
+					
+					document.body.appendChild(scripte);
+					
+					
+				}
+				
+			}
+	</script>
+	</head>
+	<body>
+		
+		<select id="sele1">
+			<option>请选择省份</option>
+		</select>
+		<select id="sele2">
+			<option>请选择地市</option>
+		</select>
+		<select id="sele3">
+			<option>请选择区县</option>
+		</select>
+		<ul id="list">
+			
+		</ul>
+		<script src="js/ajax.js"></script>
+		<script type="text/javascript">
+			window.onload = function (){
+				var allData;
+				ajax("GET", "data/allCity.json", function (data){
+						// 解析服务器返回的数据，放在公共的allData变量中
+						allData = JSON.parse(data);//转化为json对象
+						showProv();
+					});
+				
+				//显示省份
+				function showProv(){
+					var sele1 = document.getElementById('sele1');
+					var sele2 = document.getElementById("sele2");
+					var sele3 = document.getElementById("sele3");
+					
+					// 拿到存放每个省份对象的数组
+					var provinces = allData.regions;
+					// 遍历所有省份
+					for(var i = 0; i < provinces.length; i++){
+						
+						// 获取省份的名称
+						var provName = provinces[i].name;
+						// 生成一个option标签
+						var opt = document.createElement('option');
+						// 将省份名称放到标签中
+						opt.innerHTML = provName;
+						// 将option标签放到第一个select中
+						sele1.appendChild(opt);
+					}
+					
+					sele1.onchange = function (){
+						sele3.innerHTML='<option>请选择城市</option>';
+						sele2.innerHTML='<option>请选择城市</option>';
+						showCity(this.value);
+						
+					}
+					
+				}
+				//显示地市
+				function showCity(provName){
+					var prov;
+					var sele2 = document.getElementById("sele2");
+					var provinces = allData.regions;
+					for(var pro in provinces){
+						if(provinces[pro].name==provName){
+							 prov = provName;
+							 var City = provinces[pro].regions;
+						}
+					}
+					for(var i = 0; i < City.length;i++){
+						//获取地市名
+						var CityName = City[i].name;
+						//生成一个option
+						var opt = document.createElement('option');
+						// 将省份名称放到标签中
+						opt.innerHTML = CityName; 
+						// 将option标签放到第一个select中
+						sele2.appendChild(opt);
+						
+						
+					}
+					sele2.onchange = function (){
+						var sele3 = document.getElementById("sele3");
+						//console.log(this.value);
+						
+						sele3.innerHTML='<option>请选择城市</option>';
+						showCounty(prov,this.value);
+					}
+					
+				}
+				
+				
+				//显示县区
+				function showCounty(prov,CityName){
+					var sele3 = document.getElementById("sele3");
+					var provinces = allData.regions;
+					for(var i = 0 ; i < provinces.length;i++){
+						var provName = provinces[i].name;
+						if(prov == provName){
+							var citise = provinces[i].regions;
+							for(var i = 0; i < citise.length;i++){
+								var cityName = citise[i].name;
+								if(cityName == CityName){
+									var County = citise[i].regions;
+									
+								}
+								
+							}
+							break;
+						}
+					}
+					
+					for(var i = 0; i < County.length;i++){
+						//获取县区名
+						var CountyName = County[i].name;
+						//生成一个option
+						var opt = document.createElement('option');
+						// 将省份名称放到标签中
+						opt.innerHTML = CountyName; 
+						sele3.appendChild(opt);
+					}
+					
+				}
+				
+				var sele3 = document.getElementById("sele3");
+				sele3.onchange=function(){
+					
+					var sele3Value = sele3.value;
+					
+					//创建script标签获取地市的拼音
+					var scriptePinyin = document.createElement('script');
+					scriptePinyin.src="http://api.k780.com:88/?app=code.hanzi_pinyin&typeid=1&"+
+					"wd="+sele3Value
+					+"&appkey=10003&sign=b59bc3ef6191eb9f747dd4e83c99f2a4&format=json"
+					+"&jsoncallback=change";
+					document.body.appendChild(scriptePinyin);
+					
+					
+					
+					
+					/*
+					//创建scripte标签获取天气数据
+					var scripte = document.createElement('script');
+					
+					scripte.src="http://api.k780.com:88/?app=weather.future&"+
+					"weaid="+str+
+					"&&appkey=10003&sign=b59bc3ef6191eb9f747dd4e83c99f2a4&format=json"+
+					"&jsoncallback=show";
+					
+					document.body.appendChild(scripte);
+					
+					*/
+				}
+				
+			}
+			
+			/*
+			  allData = {
+			  	
+			  	regions : {
+			  		
+			  		{
+			  			name: "浙江",
+			  			regions : [
+			  				{
+			  					name : "嘉兴",
+			  					regions : [
+			  						{
+			  							name : "南湖区"，
+			  							id : "1123445"
+			  						},
+			  						{}
+			  					
+			  					],
+			  					
+			  				},
+			  				{},
+			  			
+			  			],
+			  		},
+			  		{},
+			  	}
+			  	
+			  	
+			  }
+			
+			*/
+		</script>
+	</body>
+</html>
